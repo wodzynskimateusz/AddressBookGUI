@@ -3,8 +3,8 @@ package addressbook.viewcontroller;
 import addressbook.Main;
 import addressbook.helpers.DateHelper;
 import addressbook.model.Person;
-import javafx.beans.property.StringProperty;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -49,7 +49,7 @@ public class PersonOverviewController {
         lastNameColumn.setCellValueFactory(cellData -> cellData.getValue().lastNameProperty());
         showPersonDetails(null);
 
-        personTable.getSelectionModel().selectedItemProperty().addListener((observable,oldValue,newValue)->showPersonDetails(newValue));
+        personTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> showPersonDetails(newValue));
     }
 
     public void setMainApp(Main mainApp) {
@@ -73,6 +73,48 @@ public class PersonOverviewController {
             cityLabel.setText("");
             postalCodeLabel.setText("");
             birthdayLabel.setText("");
+        }
+    }
+
+    @FXML
+    private void handleDeletePerson() {
+        int index = personTable.getSelectionModel().getSelectedIndex();
+        if (index >= 0) {
+            personTable.getItems().remove(index);
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Brak zaznaczenia");
+            alert.setHeaderText("Nie zaznaczono elementu");
+            alert.setContentText("Proszę wskazać element do usunięcia");
+
+            alert.showAndWait();
+        }
+    }
+
+    @FXML
+    private void handleAddButton() {
+        Person tempPerson = new Person("", "");
+        boolean okClicked = mainApp.showPersonEditDialog(tempPerson);
+        if (okClicked) {
+            mainApp.getPersonData().add(tempPerson);
+        }
+    }
+
+    @FXML
+    private void handleEditPerson() {
+        Person person = personTable.getSelectionModel().getSelectedItem();
+        if (person != null) {
+            boolean okClicked = mainApp.showPersonEditDialog(person);
+            if (okClicked) {
+                showPersonDetails(person);
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Brak zaznaczenia");
+            alert.setHeaderText("Nie zaznaczono żadnego kontaktu");
+            alert.setContentText("Proszę wskazać kontakt do edycji");
+
+            alert.showAndWait();
         }
     }
 }
